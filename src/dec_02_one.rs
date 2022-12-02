@@ -37,11 +37,11 @@ impl Iterator for StrategyGuide {
                 )?;
 
             // parse opponent's played move
-            let opponent = PlayedResult::from(opponent).0
+            let opponent = PlayedDecrypted::from(opponent).0
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{opponent:?} is not a valid opponent move")))?;
 
             // parse the move you should play
-            let you = PlayedResult::from(you).0
+            let you = PlayedDecrypted::from(you).0
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{you:?} is not a valid move for you")))?;
 
             Ok((opponent, you))
@@ -57,9 +57,9 @@ enum Played {
     Scissors = 3,
 }
 
-struct PlayedResult(Result<Played, ()>);
+struct PlayedDecrypted(Result<Played, ()>);
 
-impl<'a> From<&'a str> for PlayedResult {
+impl<'a> From<&'a str> for PlayedDecrypted {
     fn from(source: &'a str) -> Self {
         Self(match source.trim().to_uppercase().as_str() {
             "A" | "X" => Ok(Played::Rock),
@@ -70,35 +70,42 @@ impl<'a> From<&'a str> for PlayedResult {
     }
 }
 
+#[repr(u8)]
+#[derive(Clone, Copy)]
+enum Outcome {
+    Draw = 3,
+    Lose = 0,
+    Win = 6,
+}
+
+/// Determine outcome of a game played (opponent, you)
+impl From<(Played, Played)> for Outcome {
+    fn from((opponent, you): (Played, Played)) -> Self {
+        match (opponent, you) {
+            (Played::Rock, Played::Paper) |
+            (Played::Paper, Played::Scissors) |
+            (Played::Scissors, Played::Rock) => Self::Win,
+
+            (Played::Rock, Played::Rock) |
+            (Played::Paper, Played::Paper) |
+            (Played::Scissors, Played::Scissors) => Self::Draw,
+
+            (Played::Rock, Played::Scissors) |
+            (Played::Paper, Played::Rock) |
+            (Played::Scissors, Played::Paper) => Self::Lose,
+        }
+    }
+}
+
 /// Play Rock, Paper, Scissors assuming the strategy guide is encrypted as moves you should play
 pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
-    const DRAW: usize = 3;
-    const LOSE: usize = 0;
-    const WIN: usize = 6;
-
     // calculate total score according to the strategy guide; playing the suggested moves
     let total_score = StrategyGuide::new(input)
-        .fold(Ok(0), |acc: io::Result<usize>, nxt| {
+        .fold(Ok(0), |acc: io::Result<usize>, game_strategy| {
             if let Ok(acc) = acc {
-                let (opponent, you) = nxt?;
+                let (opponent, you) = game_strategy?;
 
-                Ok(
-                    match (opponent, you) {
-                        (Played::Rock, Played::Paper) |
-                        (Played::Paper, Played::Scissors) |
-                        (Played::Scissors, Played::Rock) => WIN,
-
-                        (Played::Rock, Played::Rock) |
-                        (Played::Paper, Played::Paper) |
-                        (Played::Scissors, Played::Scissors) => DRAW,
-
-                        (Played::Rock, Played::Scissors) |
-                        (Played::Paper, Played::Rock) |
-                        (Played::Scissors, Played::Paper) => LOSE,
-                    }
-                        + (you as usize)
-                        + acc
-                )
+                Ok(Outcome::from((opponent, you)) as usize + you as usize + acc)
             } else {
                 acc
             }
