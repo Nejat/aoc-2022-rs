@@ -1,0 +1,4 @@
+2022-12-01 puzzle one: 66296
+2022-12-01 puzzle two: 192336
+2022-12-02 puzzle one: 9759
+2022-12-02 puzzle two: 12429

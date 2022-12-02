@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Lines};
 
+/// Iterates a file with an encrypted strategy guide that contains
+/// the opponent's anticipated move and the outcome you should achieve
 struct StrategyGuide {
     lines: Lines<BufReader<File>>,
 }
@@ -20,6 +22,7 @@ impl Iterator for StrategyGuide {
     fn next(&mut self) -> Option<Self::Item> {
         let mut line = self.lines.next()?.ok()?;
 
+        // read file line by line skipping empty lines
         while line.trim().is_empty() {
             line = self.lines.next()?.ok()?;
         }
@@ -27,12 +30,17 @@ impl Iterator for StrategyGuide {
         return Some(strategy(&line));
 
         fn strategy(play: &str) -> io::Result<(Played, Strategy)> {
+            // each play should only contain two symbols, the opponent's play and your strategy
             let (opponent, strategy) = play.split_once(' ')
                 .ok_or_else(
                     || Error::new(ErrorKind::Other, format!("{play:?} is not a valid play strategy"))
                 )?;
+
+            // parse opponent's played move
             let opponent = PlayedResult::from(opponent).0
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{opponent:?} is not a valid opponent move")))?;
+
+            // parse the strategy you should you
             let strategy = StrategyResult::from(strategy).0
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{strategy:?} is not a valid strategy")))?;
 
@@ -52,8 +60,8 @@ enum Played {
 struct PlayedResult(Result<Played, ()>);
 
 impl<'a> From<&'a str> for PlayedResult {
-    fn from(source: &'a str) -> PlayedResult {
-        PlayedResult(match source.trim().to_uppercase().as_str() {
+    fn from(source: &'a str) -> Self {
+        Self(match source.trim().to_uppercase().as_str() {
             "A" => Ok(Played::Rock),
             "B" => Ok(Played::Paper),
             "C" => Ok(Played::Scissors),
@@ -72,8 +80,8 @@ enum Strategy {
 struct StrategyResult(Result<Strategy, ()>);
 
 impl<'a> From<&'a str> for StrategyResult {
-    fn from(source: &'a str) -> StrategyResult {
-        StrategyResult(match source.trim().to_uppercase().as_str() {
+    fn from(source: &'a str) -> Self {
+        Self(match source.trim().to_uppercase().as_str() {
             "X" => Ok(Strategy::Lose),
             "Y" => Ok(Strategy::Draw),
             "Z" => Ok(Strategy::Win),
@@ -82,11 +90,14 @@ impl<'a> From<&'a str> for StrategyResult {
     }
 }
 
+/// Play Rock, Paper, Scissors assuming the strategy guide is encrypted as the outcome of playing
 pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
     const DRAW: usize = 3;
     const LOSE: usize = 0;
     const WIN: usize = 6;
 
+    // calculate total score according to the strategy guide;
+    // playing a move that produces the suggested strategy
     let total_score = StrategyGuide::new(input)
         .fold(Ok(0), |acc: io::Result<usize>, nxt| {
             if let Ok(acc) = acc {

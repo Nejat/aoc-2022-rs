@@ -6,6 +6,8 @@ struct StrategyGuide {
     lines: Lines<BufReader<File>>,
 }
 
+/// Iterates a file with an encrypted strategy guide that contains
+/// the opponent's anticipated move and the move you should play
 impl StrategyGuide {
     fn new(input: File) -> Self {
         Self {
@@ -20,6 +22,7 @@ impl Iterator for StrategyGuide {
     fn next(&mut self) -> Option<Self::Item> {
         let mut line = self.lines.next()?.ok()?;
 
+        // read file line by line skipping empty lines
         while line.trim().is_empty() {
             line = self.lines.next()?.ok()?;
         }
@@ -27,12 +30,17 @@ impl Iterator for StrategyGuide {
         return Some(strategy(&line));
 
         fn strategy(play: &str) -> io::Result<(Played, Played)> {
+            // each play should only contain two symbols, the opponent's play and your play
             let (opponent, you) = play.split_once(' ')
                 .ok_or_else(
                     || Error::new(ErrorKind::Other, format!("{play:?} is not a valid strategy"))
                 )?;
+
+            // parse opponent's played move
             let opponent = PlayedResult::from(opponent).0
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{opponent:?} is not a valid opponent move")))?;
+
+            // parse the move you should play
             let you = PlayedResult::from(you).0
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{you:?} is not a valid move for you")))?;
 
@@ -52,8 +60,8 @@ enum Played {
 struct PlayedResult(Result<Played, ()>);
 
 impl<'a> From<&'a str> for PlayedResult {
-    fn from(source: &'a str) -> PlayedResult {
-        PlayedResult(match source.trim().to_uppercase().as_str() {
+    fn from(source: &'a str) -> Self {
+        Self(match source.trim().to_uppercase().as_str() {
             "A" | "X" => Ok(Played::Rock),
             "B" | "Y" => Ok(Played::Paper),
             "C" | "Z" => Ok(Played::Scissors),
@@ -62,11 +70,13 @@ impl<'a> From<&'a str> for PlayedResult {
     }
 }
 
+/// Play Rock, Paper, Scissors assuming the strategy guide is encrypted as moves you should play
 pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
     const DRAW: usize = 3;
     const LOSE: usize = 0;
     const WIN: usize = 6;
 
+    // calculate total score according to the strategy guide; playing the suggested moves
     let total_score = StrategyGuide::new(input)
         .fold(Ok(0), |acc: io::Result<usize>, nxt| {
             if let Ok(acc) = acc {

@@ -2,7 +2,17 @@
 name = "aoc-2022"
 version = "0.1.0"
 edition = "2021"
+authors = ["Nejat<nejaoz@gmail.com>"]
+description = "my first crack at advent of code"
+license = "MIT"
+repository = "https://github.com/Nejat/aoc-2022-rs"
+readme = "README.md"
+keywords = ["algorithms"]
+categories = ["algorithms"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[profile.release]
+codegen-units = 1
+lto = true
+panic = "abort"
+opt-level = "z"  # Optimize for size.
+strip = true     # Automatically strip symbols from the binary.
