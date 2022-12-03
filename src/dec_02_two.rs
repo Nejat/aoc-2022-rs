@@ -1,7 +1,9 @@
 use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufReader, Error, ErrorKind, Lines};
+use std::io::{BufRead, BufReader, Lines};
 use std::str::FromStr;
+
+use crate::utils::io_error;
 
 /// Iterates a file with an encrypted strategy guide that contains
 /// the opponent's anticipated move and the outcome you should achieve
@@ -34,16 +36,16 @@ impl Iterator for StrategyGuide {
             // each play should only contain two symbols, the opponent's play and your strategy
             let (opponent, strategy) = play.split_once(' ')
                 .ok_or_else(
-                    || Error::new(ErrorKind::Other, format!("{play:?} is not a valid play strategy"))
+                    || io_error(&format!("{play:?} is not a valid play strategy"))
                 )?;
 
             // parse opponent's played move
             let opponent = Played::from_str(opponent)
-                .map_err(|_| Error::new(ErrorKind::Other, format!("{opponent:?} is not a valid opponent move")))?;
+                .map_err(|_| io_error(&format!("{opponent:?} is not a valid opponent move")))?;
 
             // parse the strategy you should you
             let strategy = Outcome::from_str(strategy)
-                .map_err(|_| Error::new(ErrorKind::Other, format!("{strategy:?} is not a valid strategy")))?;
+                .map_err(|_| io_error(&format!("{strategy:?} is not a valid strategy")))?;
 
             Ok((opponent, strategy))
         }

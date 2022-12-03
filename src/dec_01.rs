@@ -1,7 +1,9 @@
 use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufReader, ErrorKind, Lines};
+use std::io::{BufRead, BufReader, Lines};
 use std::str::FromStr;
+
+use crate::utils::io_error;
 
 /// Iterates a file of elf calories and sums up total calories for each elf
 struct ElfCalories {
@@ -41,7 +43,7 @@ impl Iterator for ElfCalories {
                                     total_calories.map(|v| v + value);
                                 }
                                 // bubble usize paring errors
-                                Err(err) => return Some(Err(io::Error::new(ErrorKind::Other, format!("{value}: {err}"))))
+                                Err(err) => return Some(Err(io_error(&format!("{value}: {err}"))))
                             },
                         // if empty line indicator and we have a value return
                         Ok(_) if total_calories.is_some() =>

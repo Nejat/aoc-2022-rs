@@ -1,7 +1,9 @@
 use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufReader, Error, ErrorKind, Lines};
+use std::io::{BufRead, BufReader, Lines};
 use std::str::FromStr;
+
+use crate::utils::io_error;
 
 struct StrategyGuide {
     lines: Lines<BufReader<File>>,
@@ -34,16 +36,16 @@ impl Iterator for StrategyGuide {
             // each play should only contain two symbols, the opponent's play and your play
             let (opponent, you) = play.split_once(' ')
                 .ok_or_else(
-                    || Error::new(ErrorKind::Other, format!("{play:?} is not a valid strategy"))
+                    || io_error(&format!("{play:?} is not a valid strategy"))
                 )?;
 
             // parse opponent's played move
             let opponent = Played::from_str(opponent)
-                .map_err(|_| Error::new(ErrorKind::Other, format!("{opponent:?} is not a valid opponent move")))?;
+                .map_err(|_| io_error(&format!("{opponent:?} is not a valid opponent move")))?;
 
             // parse the move you should play
             let you = Played::from_str(you)
-                .map_err(|_| Error::new(ErrorKind::Other, format!("{you:?} is not a valid move for you")))?;
+                .map_err(|_| io_error(&format!("{you:?} is not a valid move for you")))?;
 
             Ok((opponent, you))
         }
