@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Lines};
+use std::str::FromStr;
 
 struct StrategyGuide {
     lines: Lines<BufReader<File>>,
@@ -37,11 +38,11 @@ impl Iterator for StrategyGuide {
                 )?;
 
             // parse opponent's played move
-            let opponent = PlayedDecrypted::from(opponent).0
+            let opponent = Played::from_str(opponent)
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{opponent:?} is not a valid opponent move")))?;
 
             // parse the move you should play
-            let you = PlayedDecrypted::from(you).0
+            let you = Played::from_str(you)
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{you:?} is not a valid move for you")))?;
 
             Ok((opponent, you))
@@ -57,15 +58,15 @@ enum Played {
     Scissors = 3,
 }
 
-struct PlayedDecrypted(Result<Played, ()>);
+impl FromStr for Played {
+    type Err = ();
 
-impl<'a> From<&'a str> for PlayedDecrypted {
-    fn from(source: &'a str) -> Self {
-        Self(match source.trim().to_uppercase().as_str() {
-            "A" | "X" => Ok(Played::Rock),
-            "B" | "Y" => Ok(Played::Paper),
-            "C" | "Z" => Ok(Played::Scissors),
-            _ => Err(())
+    fn from_str(src: &str) -> Result<Self, Self::Err> {
+        Ok(match src.trim().to_uppercase().as_str() {
+            "A" | "X" => Self::Rock,
+            "B" | "Y" => Self::Paper,
+            "C" | "Z" => Self::Scissors,
+            _ => return Err(())
         })
     }
 }

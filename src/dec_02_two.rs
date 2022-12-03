@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Lines};
+use std::str::FromStr;
 
 /// Iterates a file with an encrypted strategy guide that contains
 /// the opponent's anticipated move and the outcome you should achieve
@@ -37,11 +38,11 @@ impl Iterator for StrategyGuide {
                 )?;
 
             // parse opponent's played move
-            let opponent = PlayedDecrypted::from(opponent).0
+            let opponent = Played::from_str(opponent)
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{opponent:?} is not a valid opponent move")))?;
 
             // parse the strategy you should you
-            let strategy = OutcomeDecrypted::from(strategy).0
+            let strategy = Outcome::from_str(strategy)
                 .map_err(|_| Error::new(ErrorKind::Other, format!("{strategy:?} is not a valid strategy")))?;
 
             Ok((opponent, strategy))
@@ -57,15 +58,16 @@ enum Played {
     Scissors = 3,
 }
 
-struct PlayedDecrypted(Result<Played, ()>);
 
-impl<'a> From<&'a str> for PlayedDecrypted {
-    fn from(source: &'a str) -> Self {
-        Self(match source.trim().to_uppercase().as_str() {
-            "A" => Ok(Played::Rock),
-            "B" => Ok(Played::Paper),
-            "C" => Ok(Played::Scissors),
-            _ => Err(())
+impl FromStr for Played {
+    type Err = ();
+
+    fn from_str(source: &str) -> Result<Self, Self::Err> {
+        Ok(match source.trim().to_uppercase().as_str() {
+            "A" => Self::Rock,
+            "B" => Self::Paper,
+            "C" => Self::Scissors,
+            _ => return Err(())
         })
     }
 }
@@ -78,15 +80,15 @@ enum Outcome {
     Win = 6,
 }
 
-struct OutcomeDecrypted(Result<Outcome, ()>);
+impl FromStr for Outcome {
+    type Err = ();
 
-impl<'a> From<&'a str> for OutcomeDecrypted {
-    fn from(source: &'a str) -> Self {
-        Self(match source.trim().to_uppercase().as_str() {
-            "X" => Ok(Outcome::Lose),
-            "Y" => Ok(Outcome::Draw),
-            "Z" => Ok(Outcome::Win),
-            _ => Err(())
+    fn from_str(source: &str) -> Result<Self, Self::Err> {
+        Ok(match source.trim().to_uppercase().as_str() {
+            "X" => Self::Lose,
+            "Y" => Self::Draw,
+            "Z" => Self::Win,
+            _ => return Err(())
         })
     }
 }

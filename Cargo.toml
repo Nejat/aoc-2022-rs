@@ -9,6 +9,7 @@ repository = "https://github.com/Nejat/aoc-2022-rs"
 readme = "README.md"
 keywords = ["algorithms"]
 categories = ["algorithms"]
+publish = false
 
 [profile.release]
 codegen-units = 1
