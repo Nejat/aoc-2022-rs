@@ -16,6 +16,9 @@ use std::path::{Path, PathBuf};
 mod dec_01;
 mod dec_02_one;
 mod dec_02_two;
+mod dec_03_one;
+mod dec_03_two;
+mod utils;
 
 // a collection of puzzles
 type Puzzles<'a> = Vec<(&'a str, &'a str, Box<dyn Fn(File) -> io::Result<Box<dyn ToString>>>)>;
@@ -30,6 +33,8 @@ fn main() -> io::Result<()> {
         ("2022-12-01 puzzle two", "2022-12-01.txt", Box::new(dec_01::puzzle_two)),
         ("2022-12-02 puzzle one", "2022-12-02.txt", Box::new(dec_02_one::puzzle_one)),
         ("2022-12-02 puzzle two", "2022-12-02.txt", Box::new(dec_02_two::puzzle_two)),
+        ("2022-12-03 puzzle one", "2022-12-03.txt", Box::new(dec_03_one::puzzle_one)),
+        ("2022-12-03 puzzle two", "2022-12-03.txt", Box::new(dec_03_two::puzzle_two)),
     ];
 
     for (label, input_file, puzzle) in puzzles {
@@ -59,4 +64,23 @@ fn get_input_file(input_file: &str) -> io::Result<File> {
     input_path.push(input_file);
 
     File::open(input_path)
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn verify_correct_answers_for_refactoring() {
+        let actual = include_str!("../aoc-2022-rs-results.txt");
+        let expected = include_str!("../aoc-2022-rs-expected-results.txt");
+
+        actual.lines()
+            .zip(expected.lines())
+            .for_each(|(actual, expected)| {
+                let (actual_test, actual_result) = actual.split_once(':').unwrap();
+                let (expected_test, expected_result) = expected.split_once(':').unwrap();
+
+                assert_eq!(actual_test.trim(), expected_test.trim(), "Test Mismatch");
+                assert_eq!(actual_result.trim(), expected_result.trim(), "{} failed", actual_test);
+            });
+    }
 }
