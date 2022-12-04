@@ -4,3 +4,5 @@
 2022-12-02 puzzle two: 12429
 2022-12-03 puzzle one: 8233
 2022-12-03 puzzle two: 2821
+2022-12-04 puzzle one: 441
+2022-12-04 puzzle one: 861

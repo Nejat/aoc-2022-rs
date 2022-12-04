@@ -18,6 +18,7 @@ mod dec_02_one;
 mod dec_02_two;
 mod dec_03_one;
 mod dec_03_two;
+mod dec_04;
 mod utils;
 
 // a collection of puzzles
@@ -35,6 +36,8 @@ fn main() -> io::Result<()> {
         ("2022-12-02 puzzle two", "2022-12-02.txt", Box::new(dec_02_two::puzzle_two)),
         ("2022-12-03 puzzle one", "2022-12-03.txt", Box::new(dec_03_one::puzzle_one)),
         ("2022-12-03 puzzle two", "2022-12-03.txt", Box::new(dec_03_two::puzzle_two)),
+        ("2022-12-04 puzzle one", "2022-12-04.txt", Box::new(dec_04::puzzle_one)),
+        ("2022-12-04 puzzle one", "2022-12-04.txt", Box::new(dec_04::puzzle_two)),
     ];
 
     for (label, input_file, puzzle) in puzzles {
