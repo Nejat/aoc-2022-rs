@@ -36,18 +36,18 @@ impl Iterator for CleansedLines {
 pub fn find_matching<I, Iter, IntoIter, P, ER, E, const N: usize>(
     input: &[IntoIter; N],
     mut predicate: P,
-    not_found: ER,
+    build_error: ER,
 ) -> Result<Iter::Item, E>
     where I: Eq + Copy,
           Iter: Iterator<Item=I>,
           IntoIter: IntoIterator<Item=I, IntoIter=Iter> + Clone,
           E: Error,
           P: FnMut(I) -> Result<(), E>,
-          ER: Fn() -> E,
+          ER: Fn(&str) -> E,
 {
-    if input.len() < 2 { return Err(not_found()); }
+    if input.len() < 2 { return Err(build_error("Provide more than one set to find matching items")); }
 
-    let mut found = None;
+    let mut found_match = None;
     let items = input[0].clone().into_iter();
 
     for item in items {
@@ -68,13 +68,13 @@ pub fn find_matching<I, Iter, IntoIter, P, ER, E, const N: usize>(
             })
             .collect::<Result<Vec<_>, E>>()?;
 
-        if matches.len() >= input.len() - 1 {
-            found = Some(item);
+        if matches.len() == input.len() - 1 {
+            found_match = Some(item);
             break;
         }
     }
 
-    found.ok_or_else(not_found)
+    found_match.ok_or_else(|| build_error("No matches found"))
 }
 
 /// create an `io::Error`

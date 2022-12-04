@@ -51,7 +51,7 @@ impl Iterator for RummageRucksacks {
             |itm| itm.is_alphabetic()
                 .then_some(())
                 .ok_or_else(|| io_error("Not all items in rucksacks are valid items")),
-            || io_error("No matches found in rucksacks"),
+            io_error,
         );
 
         match_results.map_or(None, |found| Some(Ok(prioritize_rucksack_item(found))))
