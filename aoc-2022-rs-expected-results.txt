@@ -6,3 +6,5 @@
 2022-12-03 puzzle two: 2821
 2022-12-04 puzzle one: 441
 2022-12-04 puzzle one: 861
+2022-12-05 puzzle one: FWNSHLDNZ
+2022-12-05 puzzle one: RNRGDNFQG

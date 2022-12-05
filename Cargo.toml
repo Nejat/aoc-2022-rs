@@ -17,3 +17,6 @@ lto = true
 panic = "abort"
 opt-level = "z"  # Optimize for size.
 strip = true     # Automatically strip symbols from the binary.
+
+[dependencies]
+nom = "7"
