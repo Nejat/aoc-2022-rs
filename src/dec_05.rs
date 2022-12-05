@@ -38,7 +38,11 @@ fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
 
     // check the number of stacks inputted matches the number labels parsed
     if stacks.len() != stack_labels.len() {
-        return Err(io_error(&format!("number of stacks {} does not match number of stack labels {}", stacks.len(), stack_labels.len())));
+        return Err(io_error(&format!(
+            "number of stacks {} does not match number of stack labels {}",
+            stacks.len(),
+            stack_labels.len())
+        ));
     }
 
     // use labels to keep input order
@@ -57,12 +61,20 @@ fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
 
         loop {
             let instruction = match input.next() {
-                None if moves.is_empty() => return Err(io_error("no move instructions found")),
-                None => break,
-                Some(instructions) => instructions.map_err(|err| io_error(&format!("exception reading next move instruction; {err}")))?,
+                None if moves.is_empty() =>
+                    return Err(io_error("no move instructions found")),
+                None =>
+                    break,
+                Some(instructions) =>
+                    instructions.map_err(
+                        |err| io_error(&format!("exception reading next move instruction; {err}"))
+                    )?,
             };
 
-            let (_, r#move) = parse_move(&instruction).map_err(|err| io_error(&format!("couldn't parsing move instruction '{instruction}'; {err}")))?;
+            let (_, r#move) = parse_move(&instruction)
+                .map_err(
+                    |err| io_error(&format!("couldn't parsing move instruction '{instruction}'; {err}"))
+                )?;
 
             moves.push(r#move);
         }
@@ -104,12 +116,20 @@ fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
             }
 
             let crates = match input.next() {
-                None if stacks.is_empty() => return Err(io_error("no crate contents found")),
-                None => break,
-                Some(crates) => crates.map_err(|err| io_error(&format!("exception reading crate contents; {err}")))?,
+                None if stacks.is_empty() =>
+                    return Err(io_error("no crate contents found")),
+                None =>
+                    break,
+                Some(crates) =>
+                    crates.map_err(
+                        |err| io_error(&format!("exception reading crate contents; {err}"))
+                    )?,
             };
 
-            let (_, crates) = parse_crates(&crates).map_err(|err| io_error(&format!("couldn't parse crate contents '{crates}'; {err}")))?;
+            let (_, crates) = parse_crates(&crates)
+                .map_err(
+                    |err| io_error(&format!("couldn't parse crate contents '{crates}'; {err}"))
+                )?;
 
             while stacks.len() < crates.len() {
                 stacks.push(Crates::new());
@@ -159,15 +179,15 @@ fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
     }
 
     fn parse_stack_labels<I>(mut input: I) -> io::Result<(I, Labels)>
-        where
-            I: Iterator<Item=io::Result<String>>,
+        where I: Iterator<Item=io::Result<String>>,
     {
-        let labels = match input.next() {
-            None => return Err(io_error("could not find any labels")),
-            Some(labels) => labels.map_err(|err| io_error(&format!("exception reading stack labels; {err}")))?,
-        };
+        let labels = input
+            .next()
+            .ok_or_else(|| io_error("could not find any labels"))?
+            .map_err(|err| io_error(&format!("exception reading stack labels; {err}")))?;
 
-        let labels = labels.split(' ')
+        let labels = labels
+            .split(' ')
             .filter_map(|v| if v.trim().is_empty() { None } else { Some(v.trim().to_string()) })
             .collect::<Vec<_>>();
 
@@ -182,21 +202,21 @@ pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
 
     for r#move in instructions {
         for _ in 0..r#move.crates {
-            let from_crate = stacks.get_mut(&r#move.from)
+            let from_crate = stacks
+                .get_mut(&r#move.from)
                 .ok_or_else(|| io_error(&format!("'{}' is not a valid stack", r#move.from)))?
                 .pop_front()
                 .ok_or_else(|| io_error(&format!("Expected more crates in stack '{}'", r#move.from)))?;
 
-            let to_crate = stacks.get_mut(&r#move.to)
+            let to_crate = stacks
+                .get_mut(&r#move.to)
                 .ok_or_else(|| io_error(&format!("'{}' is not a valid stack", r#move.to)))?;
 
             to_crate.push_front(from_crate);
         }
     }
 
-    let answer = labels.into_iter().map(|lbl| stacks.get_mut(&lbl).unwrap().pop_front().unwrap()).collect::<String>();
-
-    Ok(Box::new(answer))
+    Ok(Box::new(build_answer(labels, stacks)))
 }
 
 // finds crates at the top of each stack after all of the move instructions;
@@ -207,7 +227,8 @@ pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
     for r#move in instructions {
         let mut moved_crates = VecDeque::new();
 
-        let from_crate = stacks.get_mut(&r#move.from)
+        let from_crate = stacks
+            .get_mut(&r#move.from)
             .ok_or_else(|| io_error(&format!("'{}' is not a valid stack", r#move.from)))?;
 
         for _ in 0..r#move.crates {
@@ -218,7 +239,8 @@ pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
             moved_crates.push_front(from_crate);
         }
 
-        let to_crate = stacks.get_mut(&r#move.to)
+        let to_crate = stacks
+            .get_mut(&r#move.to)
             .ok_or_else(|| io_error(&format!("'{}' is not a valid stack", r#move.to)))?;
 
         for moved_crate in moved_crates {
@@ -226,7 +248,11 @@ pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
         }
     }
 
-    let answer = labels.into_iter().map(|lbl| stacks.get_mut(&lbl).unwrap().pop_front().unwrap()).collect::<String>();
+    Ok(Box::new(build_answer(labels, stacks)))
+}
 
-    Ok(Box::new(answer))
+fn build_answer(labels: Labels, mut stacks: Stacks) -> String {
+    labels.into_iter()
+        .map(|lbl| stacks.get_mut(&lbl).unwrap().pop_front().unwrap())
+        .collect()
 }
