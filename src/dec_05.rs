@@ -34,7 +34,6 @@ fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
     let input = CleansedLines::new(input).peekable();
     let (input, stacks) = parse_stack_crates(input)?;
     let (input, stack_labels) = parse_stack_labels(input)?;
-    let moves = parse_move_instructions(input)?;
 
     // check the number of stacks inputted matches the number labels parsed
     if stacks.len() != stack_labels.len() {
@@ -45,6 +44,8 @@ fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
         ));
     }
 
+    let moves = parse_move_instructions(input)?;
+    
     // use labels to keep input order
     let stacks = stack_labels
         .clone()
@@ -204,19 +205,19 @@ pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
         for _ in 0..r#move.crates {
             let from_crate = stacks
                 .get_mut(&r#move.from)
-                .ok_or_else(|| io_error(&format!("'{}' is not a valid stack", r#move.from)))?
+                .ok_or_else(|| io_error(&format!("could not find stack '{}'", r#move.from)))?
                 .pop_front()
-                .ok_or_else(|| io_error(&format!("Expected more crates in stack '{}'", r#move.from)))?;
+                .ok_or_else(|| io_error(&format!("expected more crates on stack '{}'", r#move.from)))?;
 
             let to_crate = stacks
                 .get_mut(&r#move.to)
-                .ok_or_else(|| io_error(&format!("'{}' is not a valid stack", r#move.to)))?;
+                .ok_or_else(|| io_error(&format!("could not find stack '{}'", r#move.to)))?;
 
             to_crate.push_front(from_crate);
         }
     }
 
-    Ok(Box::new(build_answer(labels, stacks)))
+    Ok(Box::new(top_crate_off_all_stacks(labels, stacks)))
 }
 
 // finds crates at the top of each stack after all of the move instructions;
@@ -229,30 +230,30 @@ pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
 
         let from_crate = stacks
             .get_mut(&r#move.from)
-            .ok_or_else(|| io_error(&format!("'{}' is not a valid stack", r#move.from)))?;
+            .ok_or_else(|| io_error(&format!("could not find stack '{}'", r#move.from)))?;
 
         for _ in 0..r#move.crates {
             let from_crate = from_crate
                 .pop_front()
-                .ok_or_else(|| io_error(&format!("Expected more crates in stack '{}'", r#move.from)))?;
+                .ok_or_else(|| io_error(&format!("expected more crates on stack '{}'", r#move.from)))?;
 
             moved_crates.push_front(from_crate);
         }
 
         let to_crate = stacks
             .get_mut(&r#move.to)
-            .ok_or_else(|| io_error(&format!("'{}' is not a valid stack", r#move.to)))?;
+            .ok_or_else(|| io_error(&format!("could not find stack '{}'", r#move.to)))?;
 
         for moved_crate in moved_crates {
             to_crate.push_front(moved_crate);
         }
     }
 
-    Ok(Box::new(build_answer(labels, stacks)))
+    Ok(Box::new(top_crate_off_all_stacks(labels, stacks)))
 }
 
-fn build_answer(labels: Labels, mut stacks: Stacks) -> String {
+fn top_crate_off_all_stacks(labels: Labels, mut stacks: Stacks) -> String {
     labels.into_iter()
-        .map(|lbl| stacks.get_mut(&lbl).unwrap().pop_front().unwrap())
+        .filter_map(|lbl| stacks.get_mut(&lbl)?.pop_front())
         .collect()
 }

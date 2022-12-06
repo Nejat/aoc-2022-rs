@@ -91,15 +91,15 @@ pub fn sum_everything<T, E>(mut items: impl Iterator<Item=Result<T, E>>) -> Resu
 {
     let sum_result = items
         .try_fold(
-            Ok(T::default()),
+            T::default(),
             |acc, nxt| match nxt {
-                Ok(nxt) => ControlFlow::Continue(Ok(acc.unwrap() + nxt)),
+                Ok(nxt) => ControlFlow::Continue(acc+ nxt),
                 Err(_) => ControlFlow::Break(nxt)
             },
         );
 
     match sum_result {
-        ControlFlow::Continue(ok) => ok,
+        ControlFlow::Continue(ok) => Ok(ok),
         ControlFlow::Break(err) => err
     }
 }
