@@ -93,7 +93,7 @@ pub fn sum_everything<T, E>(mut items: impl Iterator<Item=Result<T, E>>) -> Resu
         .try_fold(
             T::default(),
             |acc, nxt| match nxt {
-                Ok(nxt) => ControlFlow::Continue(acc+ nxt),
+                Ok(nxt) => ControlFlow::Continue(acc + nxt),
                 Err(_) => ControlFlow::Break(nxt)
             },
         );

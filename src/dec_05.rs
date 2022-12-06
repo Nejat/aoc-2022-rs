@@ -45,7 +45,7 @@ fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
     }
 
     let moves = parse_move_instructions(input)?;
-    
+
     // use labels to keep input order
     let stacks = stack_labels
         .clone()
