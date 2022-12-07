@@ -8,5 +8,5 @@
 2022-12-04 puzzle two: 861
 2022-12-05 puzzle one: FWNSHLDNZ
 2022-12-05 puzzle two: RNRGDNFQG
-2022-12-05 puzzle one: 1134
-2022-12-05 puzzle two: 2263
+2022-12-06 puzzle one: 1134
+2022-12-06 puzzle two: 2263

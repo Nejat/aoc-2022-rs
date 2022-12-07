@@ -44,8 +44,8 @@ fn main() -> io::Result<()> {
         ("2022-12-04 puzzle two", "2022-12-04.txt", Box::new(dec_04::puzzle_two)),
         ("2022-12-05 puzzle one", "2022-12-05.txt", Box::new(dec_05::puzzle_one)),
         ("2022-12-05 puzzle two", "2022-12-05.txt", Box::new(dec_05::puzzle_two)),
-        ("2022-12-05 puzzle one", "2022-12-06.txt", Box::new(dec_06::puzzle_one)),
-        ("2022-12-05 puzzle two", "2022-12-06.txt", Box::new(dec_06::puzzle_two)),
+        ("2022-12-06 puzzle one", "2022-12-06.txt", Box::new(dec_06::puzzle_one)),
+        ("2022-12-06 puzzle two", "2022-12-06.txt", Box::new(dec_06::puzzle_two)),
     ];
 
     for (label, input_file, puzzle) in puzzles {

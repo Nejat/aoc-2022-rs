@@ -1,23 +1,32 @@
-use std::fs::File;
+//! [AOC 2022 Day 6](https://adventofcode.com/2022/day/6)
+
 use std::io;
 use std::io::{BufReader, Read};
 
 use crate::utils::io_error;
 
 // find pack start signal
-pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_one<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
+    const PACKET_START_MARKER_SIZE: usize = 4;
+
     let data_stream = read_data_stream(input)?;
 
-    Ok(find_marker_start(&data_stream, 4)
+    Ok(find_marker_start(&data_stream, PACKET_START_MARKER_SIZE)
         .ok_or_else(|| io_error("no pack start signal found"))
         .map(Box::new)?)
 }
 
-// fin message start signal
-pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
+// find start of message signal
+pub fn puzzle_two<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
+    const MESSAGE_START_MARKER_SIZE: usize = 14;
+
     let data_stream = read_data_stream(input)?;
 
-    Ok(find_marker_start(&data_stream, 14)
+    Ok(find_marker_start(&data_stream, MESSAGE_START_MARKER_SIZE)
         .ok_or_else(|| io_error("no message start signal found"))
         .map(Box::new)?)
 }
@@ -48,10 +57,47 @@ fn find_marker_start(data_stream: &str, marker_length: usize) -> Option<usize> {
     None
 }
 
-fn read_data_stream(input: File) -> io::Result<String> {
+fn read_data_stream<R>(input: R) -> io::Result<String>
+    where R: Read
+{
     let mut data_stream = String::new();
 
     BufReader::new(input).read_to_string(&mut data_stream)?;
 
     Ok(data_stream)
+}
+
+#[cfg(test)]
+mod tests {
+    const NUM_TEST_CASES: usize = 5;
+
+    const TEST_CASES: [&str; NUM_TEST_CASES] = [
+        "mjqjpqmgbljsphdztnvjfqwrcgsmlb",
+        "bvwbjplbgvbhsrlpgdmjqwftvncz",
+        "nppdvjthqldpwncqszvftbrmjlhg",
+        "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg",
+        "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw",
+    ];
+
+    #[test]
+    fn puzzle_one() {
+        const EXPECTED: [&str; NUM_TEST_CASES] = ["7", "5", "6", "10", "11"];
+
+        for (test_case, expected) in TEST_CASES.iter().zip(&EXPECTED) {
+            let actual = super::puzzle_one(test_case.as_bytes()).unwrap().to_string();
+
+            assert_eq!(&actual, *expected);
+        }
+    }
+
+    #[test]
+    fn puzzle_two() {
+        const EXPECTED: [&str; NUM_TEST_CASES] = ["19", "23", "23", "29", "26"];
+
+        for (test_case, expected) in TEST_CASES.iter().zip(&EXPECTED) {
+            let actual = super::puzzle_two(test_case.as_bytes()).unwrap().to_string();
+
+            assert_eq!(&actual, *expected);
+        }
+    }
 }
