@@ -1,31 +1,37 @@
-use std::fs::File;
+//! [AOC 2022 Day 1](https://adventofcode.com/2022/day/1)
+
 use std::io;
-use std::io::{BufRead, BufReader, Lines};
+use std::io::{BufRead, BufReader, Lines, Read};
 use std::str::FromStr;
 
 use crate::utils::io_error;
 
 /// Iterates a file of elf calories and sums up total calories for each elf
-struct ElfCalories {
-    lines: Lines<BufReader<File>>,
+struct ElfCalories<R> {
+    lines: Lines<BufReader<R>>,
 }
 
-impl ElfCalories {
-    fn new(input: File) -> Self {
+impl<R> ElfCalories<R>
+    where R: Read
+{
+    fn new(input: R) -> Self {
         Self {
             lines: BufReader::new(input).lines()
         }
     }
 }
 
-impl Iterator for ElfCalories {
+impl<R> Iterator for ElfCalories<R>
+    where R: Read
+{
     type Item = io::Result<usize>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut total_calories = None;
 
         loop {
-            match self.lines.next() {
+            let option = self.lines.next();
+            match option {
                 // no more lines return last result
                 None =>
                     return total_calories.map(Ok),
@@ -40,7 +46,7 @@ impl Iterator for ElfCalories {
                                     total_calories = Some(value),
                                 // if existing value add to total calories
                                 Ok(value) => {
-                                    total_calories.map(|v| v + value);
+                                    total_calories = total_calories.map(|v| v + value);
                                 }
                                 // bubble usize paring errors
                                 Err(err) => return Some(Err(io_error(&format!("{value}: {err}"))))
@@ -60,7 +66,9 @@ impl Iterator for ElfCalories {
 }
 
 // find the calories of the elf carrying the most
-pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_one<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
     let elf_calorie_counter = ElfCalories::new(input);
     let max_elf_calories = elf_calorie_counter
         .into_iter()
@@ -74,7 +82,9 @@ pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
 }
 
 // find the total calories of the top three elves carrying the most
-pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_two<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
     let elf_calorie_counter = ElfCalories::new(input);
     let mut elf_calories = elf_calorie_counter
         .into_iter()
@@ -83,4 +93,38 @@ pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
     elf_calories.sort_unstable_by(|a, b| b.cmp(a));
 
     Ok(Box::new(elf_calories.into_iter().take(3).sum::<usize>()))
+}
+
+#[cfg(test)]
+mod test {
+    const INPUT: &str = "1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000";
+
+    #[test]
+    fn puzzle_one() {
+        let actual = super::puzzle_one(INPUT.as_bytes()).unwrap().to_string();
+        let expected = "24000";
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn puzzle_two() {
+        let actual = super::puzzle_two(INPUT.as_bytes()).unwrap().to_string();
+        let expected = "45000";
+
+        assert_eq!(actual, expected);
+    }
 }
