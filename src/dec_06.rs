@@ -69,6 +69,8 @@ fn read_data_stream<R>(input: R) -> io::Result<String>
 
 #[cfg(test)]
 mod tests {
+    use crate::EXPECTED_PUZZLE_SOLUTION;
+
     const NUM_TEST_CASES: usize = 5;
 
     const TEST_CASES: [&str; NUM_TEST_CASES] = [
@@ -84,7 +86,9 @@ mod tests {
         const EXPECTED: [&str; NUM_TEST_CASES] = ["7", "5", "6", "10", "11"];
 
         for (test_case, expected) in TEST_CASES.iter().zip(&EXPECTED) {
-            let actual = super::puzzle_one(test_case.as_bytes()).unwrap().to_string();
+            let actual = super::puzzle_one(test_case.as_bytes())
+                .expect(EXPECTED_PUZZLE_SOLUTION)
+                .to_string();
 
             assert_eq!(&actual, *expected);
         }
@@ -95,7 +99,9 @@ mod tests {
         const EXPECTED: [&str; NUM_TEST_CASES] = ["19", "23", "23", "29", "26"];
 
         for (test_case, expected) in TEST_CASES.iter().zip(&EXPECTED) {
-            let actual = super::puzzle_two(test_case.as_bytes()).unwrap().to_string();
+            let actual = super::puzzle_two(test_case.as_bytes())
+                .expect(EXPECTED_PUZZLE_SOLUTION)
+                .to_string();
 
             assert_eq!(&actual, *expected);
         }

@@ -113,6 +113,8 @@ pub fn puzzle_two<R>(input: R) -> io::Result<Box<dyn ToString>>
 
 #[cfg(test)]
 mod tests {
+    use crate::EXPECTED_PUZZLE_SOLUTION;
+
     const INPUT: &str = "2-4,6-8
 2-3,4-5
 5-7,7-9
@@ -122,16 +124,20 @@ mod tests {
 
     #[test]
     fn puzzle_one() {
-        let actual = super::puzzle_one(INPUT.as_bytes()).unwrap().to_string();
         let expected = "2";
+        let actual = super::puzzle_one(INPUT.as_bytes())
+            .expect(EXPECTED_PUZZLE_SOLUTION)
+            .to_string();
 
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn puzzle_two() {
-        let actual = super::puzzle_two(INPUT.as_bytes()).unwrap().to_string();
         let expected = "4";
+        let actual = super::puzzle_two(INPUT.as_bytes())
+            .expect(EXPECTED_PUZZLE_SOLUTION)
+            .to_string();
 
         assert_eq!(actual, expected);
     }

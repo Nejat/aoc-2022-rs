@@ -30,37 +30,35 @@ impl<R> Iterator for ElfCalories<R>
         let mut total_calories = None;
 
         loop {
-            let option = self.lines.next();
-            match option {
+            if let Some(next) = self.lines.next() {
+                match next {
+                    // only parse and compute lines with values
+                    Ok(value) if !value.trim().is_empty() =>
+                    // parse string value
+                        match usize::from_str(&value) {
+                            // if first value initialize total calories
+                            Ok(value) if total_calories.is_none() =>
+                                total_calories = Some(value),
+                            // if existing value add to total calories
+                            Ok(value) => {
+                                total_calories = total_calories.map(|v| v + value);
+                            }
+                            // bubble usize paring errors
+                            Err(err) => return Some(Err(io_error(&format!("{value}: {err}"))))
+                        },
+                    // if empty line indicator and we have a value return
+                    Ok(_) if total_calories.is_some() =>
+                        return total_calories.map(Ok),
+                    // continue until value is found
+                    Ok(_) => {}
+                    // bubble io errors
+                    Err(err) =>
+                        return Some(Err(err)),
+                }
+            } else {
                 // no more lines return last result
-                None =>
-                    return total_calories.map(Ok),
-                Some(next_line) =>
-                    match next_line {
-                        // only parse and compute lines with values
-                        Ok(value) if !value.trim().is_empty() =>
-                        // parse string value
-                            match usize::from_str(&value) {
-                                // if first value initialize total calories
-                                Ok(value) if total_calories.is_none() =>
-                                    total_calories = Some(value),
-                                // if existing value add to total calories
-                                Ok(value) => {
-                                    total_calories = total_calories.map(|v| v + value);
-                                }
-                                // bubble usize paring errors
-                                Err(err) => return Some(Err(io_error(&format!("{value}: {err}"))))
-                            },
-                        // if empty line indicator and we have a value return
-                        Ok(_) if total_calories.is_some() =>
-                            return total_calories.map(Ok),
-                        // continue until value is found
-                        Ok(_) => {}
-                        // bubble io errors
-                        Err(err) =>
-                            return Some(Err(err)),
-                    }
-            };
+                return total_calories.map(Ok);
+            }
         }
     }
 }
@@ -97,6 +95,8 @@ pub fn puzzle_two<R>(input: R) -> io::Result<Box<dyn ToString>>
 
 #[cfg(test)]
 mod test {
+    use crate::EXPECTED_PUZZLE_SOLUTION;
+
     const INPUT: &str = "1000
 2000
 3000
@@ -114,16 +114,20 @@ mod test {
 
     #[test]
     fn puzzle_one() {
-        let actual = super::puzzle_one(INPUT.as_bytes()).unwrap().to_string();
         let expected = "24000";
+        let actual = super::puzzle_one(INPUT.as_bytes())
+            .expect(EXPECTED_PUZZLE_SOLUTION)
+            .to_string();
 
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn puzzle_two() {
-        let actual = super::puzzle_two(INPUT.as_bytes()).unwrap().to_string();
         let expected = "45000";
+        let actual = super::puzzle_two(INPUT.as_bytes())
+            .expect(EXPECTED_PUZZLE_SOLUTION)
+            .to_string();
 
         assert_eq!(actual, expected);
     }

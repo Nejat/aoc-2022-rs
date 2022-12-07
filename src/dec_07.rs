@@ -86,10 +86,12 @@ impl<R> Iterator for CLIInterpreter<R>
     fn next(&mut self) -> Option<Self::Item> {
         let next = self.lines.next()?.ok()?;
 
-        Some(match next.parse::<CLI>() {
-            Ok(cli) => Ok(cli),
-            Err(err) => Err(io_error(&format!("couldn't interpret '{next}' - {err}")))
-        })
+        Some(
+            next.parse::<CLI>()
+                .map_err(
+                    |err| io_error(&format!("couldn't interpret '{next}' - {err}"))
+                )
+        )
     }
 }
 
@@ -189,6 +191,8 @@ fn rummage_drive<R>(input: R) -> io::Result<impl Iterator<Item=usize>>
 
 #[cfg(test)]
 mod tests {
+    use crate::EXPECTED_PUZZLE_SOLUTION;
+
     const INPUT: &str = "$ cd /
 $ ls
 dir a
@@ -215,16 +219,20 @@ $ ls
 
     #[test]
     fn puzzle_one() {
-        let actual = super::puzzle_one(INPUT.as_bytes()).unwrap().to_string();
         let expected = "95437";
+        let actual = super::puzzle_one(INPUT.as_bytes())
+            .expect(EXPECTED_PUZZLE_SOLUTION)
+            .to_string();
 
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn puzzle_two() {
-        let actual = super::puzzle_two(INPUT.as_bytes()).unwrap().to_string();
         let expected = "24933642";
+        let actual = super::puzzle_two(INPUT.as_bytes())
+            .expect(EXPECTED_PUZZLE_SOLUTION)
+            .to_string();
 
         assert_eq!(actual, expected);
     }

@@ -268,6 +268,8 @@ fn top_crate_off_all_stacks(labels: Labels, mut stacks: Stacks) -> String {
 
 #[cfg(test)]
 mod tests {
+    use crate::EXPECTED_PUZZLE_SOLUTION;
+
     const INPUT: &str = "    [D]
 [N] [C]
 [Z] [M] [P]
@@ -280,16 +282,20 @@ move 1 from 1 to 2";
 
     #[test]
     fn puzzle_one() {
-        let actual = super::puzzle_one(INPUT.as_bytes()).unwrap().to_string();
         let expected = "CMZ";
+        let actual = super::puzzle_one(INPUT.as_bytes())
+            .expect(EXPECTED_PUZZLE_SOLUTION)
+            .to_string();
 
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn puzzle_two() {
-        let actual = super::puzzle_two(INPUT.as_bytes()).unwrap().to_string();
         let expected = "MCD";
+        let actual = super::puzzle_two(INPUT.as_bytes())
+            .expect(EXPECTED_PUZZLE_SOLUTION)
+            .to_string();
 
         assert_eq!(actual, expected);
     }

@@ -29,6 +29,9 @@ mod utils;
 // a collection of puzzles
 type Puzzles<'a> = Vec<(&'a str, &'a str, Box<dyn Fn(File) -> io::Result<Box<dyn ToString>>>)>;
 
+#[cfg(test)]
+const EXPECTED_PUZZLE_SOLUTION: &str = "expected puzzle to provide a solution";
+
 const PUZZLE_INPUT_ROOT: &str = "puzzle_input";
 
 fn main() -> io::Result<()> {
@@ -84,23 +87,40 @@ fn get_input_file(input_file: &str) -> io::Result<File> {
 mod tests {
     #[test]
     fn verify_correct_answers_for_refactoring() {
+        const TEST_SEPARATOR: char = '\n';
+        const RESULT_SEPARATOR: char = ':';
+
         let actual = include_str!("../aoc-2022-rs-results.txt").trim();
         let expected = include_str!("../aoc-2022-rs-expected-results.txt").trim();
 
         assert_eq!(
-            actual.split('\n').count(),
-            expected.split('\n').count(),
-            "Tests count mismatched!"
+            actual.split(TEST_SEPARATOR).count(),
+            expected.split(TEST_SEPARATOR).count(),
+            "Tests counts mismatched!"
         );
 
         actual.lines()
             .zip(expected.lines())
             .for_each(|(actual, expected)| {
-                let (actual_test, actual_result) = actual.split_once(':').unwrap();
-                let (expected_test, expected_result) = expected.split_once(':').unwrap();
+                let (actual_test, actual_result) = actual
+                    .split_once(RESULT_SEPARATOR)
+                    .expect("actual test to be formatted expectedly");
 
-                assert_eq!(actual_test.trim(), expected_test.trim(), "Test Mismatch");
-                assert_eq!(actual_result.trim(), expected_result.trim(), "{} failed", actual_test);
+                let (expected_test, expected_result) = expected
+                    .split_once(RESULT_SEPARATOR)
+                    .expect("expected test to be formatted expectedly");
+
+                assert_eq!(
+                    actual_test.trim(),
+                    expected_test.trim(),
+                    "Test Mismatch: '{}' != '{}'", actual_test.trim(), expected_test.trim()
+                );
+
+                assert_eq!(
+                    actual_result.trim(),
+                    expected_result.trim(),
+                    "{} failed", actual_test
+                );
             });
     }
 }

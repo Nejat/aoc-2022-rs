@@ -1,15 +1,16 @@
 //! [AOC 2022 Day 2](https://adventofcode.com/2022/day/2)
 
 use std::io;
-use std::io::{BufRead, BufReader, Lines, Read};
+use std::io::Read;
+use std::ops::ControlFlow;
 use std::str::FromStr;
 
-use crate::utils::io_error;
+use crate::utils::{CleansedLines, io_error};
 
 /// Iterates a file with an encrypted strategy guide that contains
 /// the opponent's anticipated move and the outcome you should achieve
 struct StrategyGuide<R> {
-    lines: Lines<BufReader<R>>,
+    lines: CleansedLines<R>,
 }
 
 impl<R> StrategyGuide<R>
@@ -17,7 +18,7 @@ impl<R> StrategyGuide<R>
 {
     fn new(input: R) -> Self {
         Self {
-            lines: BufReader::new(input).lines()
+            lines: CleansedLines::new(input)
         }
     }
 }
@@ -28,14 +29,9 @@ impl<R> Iterator for StrategyGuide<R>
     type Item = io::Result<(Played, Outcome)>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut line = self.lines.next()?.ok()?;
+        let next = self.lines.next()?.ok()?;
 
-        // read file line by line skipping empty lines
-        while line.trim().is_empty() {
-            line = self.lines.next()?.ok()?;
-        }
-
-        return Some(strategy(&line));
+        return Some(strategy(&next));
 
         fn strategy(play: &str) -> io::Result<(Played, Outcome)> {
             // each play should only contain two symbols, the opponent's play and your strategy
@@ -126,16 +122,20 @@ pub fn puzzle_two<R>(input: R) -> io::Result<Box<dyn ToString>>
     // calculate total score according to the strategy guide;
     // playing a move that produces the suggested strategy
     let total_score = StrategyGuide::new(input)
-        .fold(Ok(0), |acc: io::Result<usize>, game_strategy| {
-            if let Ok(acc) = acc {
-                let (opponent, outcome) = game_strategy?;
+        .try_fold(0, |acc, game_strategy| {
+            #[allow(clippy::option_if_let_else)] // map_or doesn't work because of move
+            if let Ok(game_strategy) = game_strategy {
+                let (opponent, outcome) = game_strategy;
 
-                Ok(Played::from((opponent, outcome)) as usize + outcome as usize + acc)
+                ControlFlow::Continue(Played::from((opponent, outcome)) as usize + outcome as usize + acc)
             } else {
-                acc
+                ControlFlow::Break(game_strategy)
             }
-        })
-        .map(Box::new)?;
+        });
 
-    Ok(total_score)
+    match total_score {
+        ControlFlow::Continue(ok) => Ok(Box::new(ok)),
+        ControlFlow::Break(Err(err)) => Err(err),
+        ControlFlow::Break(Ok(_)) => unreachable!()
+    }
 }
