@@ -1,18 +1,21 @@
+//! [AOC 2022 Day 4](https://adventofcode.com/2022/day/4)
+
 use std::cmp::{max, min};
-use std::fs::File;
 use std::io;
-use std::io::Error;
+use std::io::{Error, Read};
 use std::ops::RangeInclusive;
 
 use crate::utils::{CleansedLines, io_error, sum_everything};
 
 /// Iterates a file of elf chore assignment pairs
-struct ElfChoreAssignmentsPairs {
-    lines: CleansedLines<File>,
+struct ElfChoreAssignmentsPairs<R> {
+    lines: CleansedLines<R>,
 }
 
-impl ElfChoreAssignmentsPairs {
-    fn new(input: File) -> Self {
+impl<R> ElfChoreAssignmentsPairs<R>
+    where R: Read
+{
+    fn new(input: R) -> Self {
         Self {
             lines: CleansedLines::new(input),
         }
@@ -21,7 +24,9 @@ impl ElfChoreAssignmentsPairs {
 
 type PairResult = io::Result<(RangeInclusive<usize>, RangeInclusive<usize>)>;
 
-impl Iterator for ElfChoreAssignmentsPairs {
+impl<R> Iterator for ElfChoreAssignmentsPairs<R>
+    where R: Read
+{
     type Item = PairResult;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -70,7 +75,9 @@ impl Iterator for ElfChoreAssignmentsPairs {
 }
 
 // finds all pairs with contained sections
-pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_one<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
     let chores = ElfChoreAssignmentsPairs::new(input);
 
     let contained_chores = chores.into_iter()
@@ -88,7 +95,9 @@ pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
 }
 
 // finds all pairs with overlapping sections
-pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_two<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
     let chores = ElfChoreAssignmentsPairs::new(input);
 
     let overlapping_chores = chores.into_iter()
@@ -100,4 +109,30 @@ pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
         );
 
     Ok(sum_everything(overlapping_chores).map(Box::new)?)
+}
+
+#[cfg(test)]
+mod tests {
+    const INPUT: &str = "2-4,6-8
+2-3,4-5
+5-7,7-9
+2-8,3-7
+6-6,4-6
+2-6,4-8";
+
+    #[test]
+    fn puzzle_one() {
+        let actual = super::puzzle_one(INPUT.as_bytes()).unwrap().to_string();
+        let expected = "2";
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn puzzle_two() {
+        let actual = super::puzzle_two(INPUT.as_bytes()).unwrap().to_string();
+        let expected = "4";
+
+        assert_eq!(actual, expected);
+    }
 }
