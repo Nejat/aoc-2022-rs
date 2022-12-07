@@ -1,8 +1,10 @@
+//! [AOC 2022 Day 5](https://adventofcode.com/2022/day/5)
+
 extern crate nom;
 
 use std::collections::{HashMap, VecDeque};
-use std::fs::File;
 use std::io;
+use std::io::Read;
 use std::iter::Peekable;
 
 use nom::bytes::complete::tag;
@@ -30,7 +32,9 @@ struct Move {
 
 /// parse input instructions
 #[allow(clippy::too_many_lines)]
-fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
+fn parse_instructions<R>(input: R) -> io::Result<(Labels, Stacks, Moves)>
+    where R: Read
+{
     let input = CleansedLines::new(input).peekable();
     let (input, stacks) = parse_stack_crates(input)?;
     let (input, stack_labels) = parse_stack_labels(input)?;
@@ -198,7 +202,9 @@ fn parse_instructions(input: File) -> io::Result<(Labels, Stacks, Moves)> {
 
 // finds crates at the top of each stack after all of the move instructions;
 // moving each crate one at a time
-pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_one<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
     let (labels, mut stacks, instructions) = parse_instructions(input)?;
 
     for r#move in instructions {
@@ -222,7 +228,9 @@ pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
 
 // finds crates at the top of each stack after all of the move instructions;
 // moving all crates,to be moved, at once preserving stacking order
-pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_two<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
     let (labels, mut stacks, instructions) = parse_instructions(input)?;
 
     for r#move in instructions {
@@ -256,4 +264,33 @@ fn top_crate_off_all_stacks(labels: Labels, mut stacks: Stacks) -> String {
     labels.into_iter()
         .filter_map(|lbl| stacks.get_mut(&lbl)?.pop_front())
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    const INPUT: &str = "    [D]
+[N] [C]
+[Z] [M] [P]
+ 1   2   3
+
+move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2";
+
+    #[test]
+    fn puzzle_one() {
+        let actual = super::puzzle_one(INPUT.as_bytes()).unwrap().to_string();
+        let expected = "CMZ";
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn puzzle_two() {
+        let actual = super::puzzle_two(INPUT.as_bytes()).unwrap().to_string();
+        let expected = "MCD";
+
+        assert_eq!(actual, expected);
+    }
 }
