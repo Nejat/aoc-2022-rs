@@ -17,6 +17,7 @@ mod dec_01;
 mod dec_02;
 mod dec_02_one;
 mod dec_02_two;
+mod dec_03;
 mod dec_03_one;
 mod dec_03_two;
 mod dec_04;

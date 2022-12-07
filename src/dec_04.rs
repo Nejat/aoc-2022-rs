@@ -8,7 +8,7 @@ use crate::utils::{CleansedLines, io_error, sum_everything};
 
 /// Iterates a file of elf chore assignment pairs
 struct ElfChoreAssignmentsPairs {
-    lines: CleansedLines,
+    lines: CleansedLines<File>,
 }
 
 impl ElfChoreAssignmentsPairs {

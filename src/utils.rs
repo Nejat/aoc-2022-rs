@@ -1,23 +1,26 @@
 use std::error::Error;
-use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufReader, ErrorKind, Lines};
+use std::io::{BufRead, BufReader, ErrorKind, Lines, Read};
 use std::ops::{Add, ControlFlow};
 
 /// Iterates a file line by line skipping empty lines and honoring io errors
-pub struct CleansedLines {
-    lines: Lines<BufReader<File>>,
+pub struct CleansedLines<R> {
+    lines: Lines<BufReader<R>>,
 }
 
-impl CleansedLines {
-    pub fn new(input: File) -> Self {
+impl<R> CleansedLines<R>
+    where R: Read
+{
+    pub fn new(input: R) -> Self {
         Self {
             lines: BufReader::new(input).lines(),
         }
     }
 }
 
-impl Iterator for CleansedLines {
+impl<R> Iterator for CleansedLines<R>
+    where R: Read
+{
     type Item = io::Result<String>;
 
     fn next(&mut self) -> Option<Self::Item> {

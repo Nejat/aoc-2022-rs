@@ -1,22 +1,28 @@
-use std::fs::File;
+//! [AOC 2022 Day 3](https://adventofcode.com/2022/day/3)
+
 use std::io;
+use std::io::Read;
 
 use crate::utils::{CleansedLines, find_matching, io_error, sum_everything};
 
 /// Iterates a file of elf rucksacks and rummages around for improperly placed items
-struct RummageRucksack {
-    lines: CleansedLines,
+struct RummageRucksack<R> {
+    lines: CleansedLines<R>,
 }
 
-impl RummageRucksack {
-    fn new(input: File) -> Self {
+impl<R> RummageRucksack<R>
+    where R: Read
+{
+    fn new(input: R) -> Self {
         Self {
             lines: CleansedLines::new(input),
         }
     }
 }
 
-impl Iterator for RummageRucksack {
+impl<R> Iterator for RummageRucksack<R>
+    where R: Read
+{
     type Item = io::Result<usize>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -52,7 +58,9 @@ impl Iterator for RummageRucksack {
 }
 
 /// find the miss items in compartments of a rucksack
-pub fn puzzle_one(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_one<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
     Ok(sum_everything(RummageRucksack::new(input)).map(Box::new)?)
 }
 
