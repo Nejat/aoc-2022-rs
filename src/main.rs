@@ -23,6 +23,7 @@ mod dec_03_two;
 mod dec_04;
 mod dec_05;
 mod dec_06;
+mod dec_07;
 mod utils;
 
 // a collection of puzzles
@@ -46,6 +47,8 @@ fn main() -> io::Result<()> {
         ("2022-12-05 puzzle two", "2022-12-05.txt", Box::new(dec_05::puzzle_two)),
         ("2022-12-06 puzzle one", "2022-12-06.txt", Box::new(dec_06::puzzle_one)),
         ("2022-12-06 puzzle two", "2022-12-06.txt", Box::new(dec_06::puzzle_two)),
+        ("2022-12-07 puzzle one", "2022-12-07.txt", Box::new(dec_07::puzzle_one)),
+        ("2022-12-07 puzzle two", "2022-12-07.txt", Box::new(dec_07::puzzle_two)),
     ];
 
     for (label, input_file, puzzle) in puzzles {
@@ -81,8 +84,8 @@ fn get_input_file(input_file: &str) -> io::Result<File> {
 mod tests {
     #[test]
     fn verify_correct_answers_for_refactoring() {
-        let actual = include_str!("../aoc-2022-rs-results.txt");
-        let expected = include_str!("../aoc-2022-rs-expected-results.txt");
+        let actual = include_str!("../aoc-2022-rs-results.txt").trim();
+        let expected = include_str!("../aoc-2022-rs-expected-results.txt").trim();
 
         assert_eq!(
             actual.split('\n').count(),
