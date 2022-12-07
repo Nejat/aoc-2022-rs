@@ -14,6 +14,7 @@ use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
 mod dec_01;
+mod dec_02;
 mod dec_02_one;
 mod dec_02_two;
 mod dec_03_one;

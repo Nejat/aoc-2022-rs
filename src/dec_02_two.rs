@@ -1,25 +1,30 @@
-use std::fs::File;
+//! [AOC 2022 Day 2](https://adventofcode.com/2022/day/2)
+
 use std::io;
-use std::io::{BufRead, BufReader, Lines};
+use std::io::{BufRead, BufReader, Lines, Read};
 use std::str::FromStr;
 
 use crate::utils::io_error;
 
 /// Iterates a file with an encrypted strategy guide that contains
 /// the opponent's anticipated move and the outcome you should achieve
-struct StrategyGuide {
-    lines: Lines<BufReader<File>>,
+struct StrategyGuide<R> {
+    lines: Lines<BufReader<R>>,
 }
 
-impl StrategyGuide {
-    fn new(input: File) -> Self {
+impl<R> StrategyGuide<R>
+    where R: Read
+{
+    fn new(input: R) -> Self {
         Self {
             lines: BufReader::new(input).lines()
         }
     }
 }
 
-impl Iterator for StrategyGuide {
+impl<R> Iterator for StrategyGuide<R>
+    where R: Read
+{
     type Item = io::Result<(Played, Outcome)>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -115,7 +120,9 @@ impl From<(Self, Outcome)> for Played {
 }
 
 /// Play Rock, Paper, Scissors assuming the strategy guide is encrypted as the outcome of playing
-pub fn puzzle_two(input: File) -> io::Result<Box<dyn ToString>> {
+pub fn puzzle_two<R>(input: R) -> io::Result<Box<dyn ToString>>
+    where R: Read
+{
     // calculate total score according to the strategy guide;
     // playing a move that produces the suggested strategy
     let total_score = StrategyGuide::new(input)
