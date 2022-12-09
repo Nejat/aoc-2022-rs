@@ -24,6 +24,7 @@ mod dec_04;
 mod dec_05;
 mod dec_06;
 mod dec_07;
+mod dec_08;
 mod utils;
 
 // a collection of puzzles
@@ -52,6 +53,8 @@ fn main() -> io::Result<()> {
         ("2022-12-06 puzzle two", "2022-12-06.txt", Box::new(dec_06::puzzle_two)),
         ("2022-12-07 puzzle one", "2022-12-07.txt", Box::new(dec_07::puzzle_one)),
         ("2022-12-07 puzzle two", "2022-12-07.txt", Box::new(dec_07::puzzle_two)),
+        ("2022-12-08 puzzle one", "2022-12-08.txt", Box::new(dec_08::puzzle_one)),
+        ("2022-12-08 puzzle two", "2022-12-08.txt", Box::new(dec_08::puzzle_two)),
     ];
 
     for (label, input_file, puzzle) in puzzles {
@@ -113,7 +116,7 @@ mod tests {
                 assert_eq!(
                     actual_test.trim(),
                     expected_test.trim(),
-                    "Test Mismatch: '{}' != '{}'", actual_test.trim(), expected_test.trim()
+                    "test mismatch: '{}' != '{}'", actual_test.trim(), expected_test.trim()
                 );
 
                 assert_eq!(

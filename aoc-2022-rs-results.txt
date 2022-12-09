@@ -12,3 +12,5 @@
 2022-12-06 puzzle two: 2263
 2022-12-07 puzzle one: 1391690
 2022-12-07 puzzle two: 5469168
+2022-12-08 puzzle one: 1533
+2022-12-08 puzzle two: 345744
