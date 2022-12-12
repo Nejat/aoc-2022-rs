@@ -34,7 +34,6 @@ impl<R> Iterator for ElfChoreAssignmentsPairs<R>
 
         return Some(parse_pair(&pair));
 
-
         // splits a pair of ranges
         fn parse_pair(pair: &str) -> PairResult {
             let (section_a, section_b) = split_clean(
