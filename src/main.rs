@@ -5,6 +5,7 @@
 #![deny(missing_docs)]
 
 #![allow(clippy::items_after_statements)] // code organization is ok
+#![allow(clippy::upper_case_acronyms)]
 
 //! AOC 2022 Oxidized 🦀
 
@@ -26,6 +27,7 @@ mod dec_06;
 mod dec_07;
 mod dec_08;
 mod dec_09;
+mod dec_10;
 mod utils;
 
 // a collection of puzzles
@@ -58,6 +60,8 @@ fn main() -> io::Result<()> {
         ("2022-12-08 puzzle two", "2022-12-08.txt", Box::new(dec_08::puzzle_two)),
         ("2022-12-09 puzzle one", "2022-12-09.txt", Box::new(dec_09::puzzle_one)),
         ("2022-12-09 puzzle two", "2022-12-09.txt", Box::new(dec_09::puzzle_two)),
+        ("2022-12-10 puzzle one", "2022-12-10.txt", Box::new(dec_10::puzzle_one)),
+        ("2022-12-10 puzzle two", "2022-12-10.txt", Box::new(dec_10::puzzle_two)),
     ];
 
     for (label, input_file, puzzle) in puzzles {
