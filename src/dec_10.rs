@@ -1,3 +1,5 @@
+//! [AOC 2022 Day 10](https://adventofcode.com/2022/day/10)
+
 use std::io;
 use std::io::Read;
 use std::ops::Deref;

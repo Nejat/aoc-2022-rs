@@ -20,3 +20,4 @@ strip = true     # Automatically strip symbols from the binary.
 
 [dependencies]
 nom = "7"
+num-traits = "0.2"

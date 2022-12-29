@@ -73,6 +73,7 @@ mod tests {
 
     const NUM_TEST_CASES: usize = 5;
 
+    //noinspection SpellCheckingInspection
     const TEST_CASES: [&str; NUM_TEST_CASES] = [
         "mjqjpqmgbljsphdztnvjfqwrcgsmlb",
         "bvwbjplbgvbhsrlpgdmjqwftvncz",

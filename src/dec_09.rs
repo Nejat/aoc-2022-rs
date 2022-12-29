@@ -1,3 +1,5 @@
+//! [AOC 2022 Day 9](https://adventofcode.com/2022/day/9)
+
 use std::{fmt, io};
 use std::collections::{HashSet, VecDeque};
 use std::fmt::{Display, Formatter};
@@ -265,7 +267,7 @@ impl<R> Iterator for FollowYourTail<R>
         let visited = knots.last().expect("expected at least one tail");
 
         if self.trace {
-            println!("V: {}\n", visited);
+            println!("V: {visited}\n");
         }
 
         return Some(Ok(*visited));

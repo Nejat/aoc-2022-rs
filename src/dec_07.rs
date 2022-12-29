@@ -186,7 +186,7 @@ fn rummage_drive<R>(input: R) -> io::Result<impl Iterator<Item=usize>>
         }
     }
 
-    Ok(all_folders.into_iter().map(|(_key, value)| value))
+    Ok(all_folders.into_values())
 }
 
 #[cfg(test)]
